@@ -17,7 +17,7 @@ public class AppUpdater {
     var slug: String {
         return "\(owner)/\(repo)"
     }
-    
+
     public var allowPrereleases = false
 
     public init(owner: String, repo: String) {
@@ -140,12 +140,34 @@ private struct Release: Decodable {
         let content_type: ContentType
     }
     let assets: [Asset]
-
     var version: Version {
         if let ver = Version(tolerant: tag_name) {
             return ver
         } else {
             return Version(0, 0, 0)
+        }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case tag_name
+        case prerelease
+        case assets
+    }
+
+    init(from decoder: Decoder) throws {
+        do {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            tag_name = try container.decode(String.self, forKey: .tag_name)
+            do {
+                prerelease = try container.decode(Bool.self, forKey: .prerelease)
+            } catch {
+                prerelease = false
+            }
+            do {
+                assets = try container.decode([Asset].self, forKey: .assets)
+            } catch {
+                assets = []
+            }
         }
     }
 
@@ -156,8 +178,6 @@ private struct Release: Decodable {
 
             switch (name, asset.content_type) {
             case ("\(prefix).tar", .tar):
-                return true
-            case ("\(prefix).zip", .zip):
                 return true
             case (prefix, _):
                 return true
