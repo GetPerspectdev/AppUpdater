@@ -174,7 +174,7 @@ private struct Release: Decodable {
     func viableAsset(forRepo repo: String) -> Asset? {
         return assets.first(where: { (asset) -> Bool in
             let prefix = "\(repo.lowercased())-\(tag_name)"
-            let laxprefix = "\(repo.lowercased())-\(tag_name)"
+            let laxprefix = repo.lowercased()
             let name = (asset.name as NSString).deletingPathExtension.lowercased()
 
             switch (name, asset.content_type) {
