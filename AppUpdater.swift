@@ -141,7 +141,7 @@ private struct Release: Decodable {
     }
     let assets: [Asset]
     var version: Version {
-        if let ver = Version(tolerant: tag_name) {
+        if let ver = Version(tolerant: tag_name.replacingOccurrences(of: "v", with: "")) {
             return ver
         } else {
             return Version(0, 0, 0)
@@ -174,12 +174,17 @@ private struct Release: Decodable {
     func viableAsset(forRepo repo: String) -> Asset? {
         return assets.first(where: { (asset) -> Bool in
             let prefix = "\(repo.lowercased())-\(tag_name)"
+            let laxprefix = "\(repo.lowercased())-\(tag_name)"
             let name = (asset.name as NSString).deletingPathExtension.lowercased()
 
             switch (name, asset.content_type) {
             case ("\(prefix).tar", .tar):
                 return true
+            case ("\(laxprefix).tar", .tar):
+                return true
             case (prefix, _):
+                return true
+            case (laxprefix, _):
                 return true
             default:
                 return false
