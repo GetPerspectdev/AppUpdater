@@ -132,7 +132,7 @@ public class AppUpdater {
 }
 
 private struct Release: Decodable {
-    let tag_name: Version
+    let tag_name: String
     let prerelease: Bool
     struct Asset: Decodable {
         let name: String
@@ -141,6 +141,14 @@ private struct Release: Decodable {
     }
     let assets: [Asset]
 
+    var version: Version {
+        if let ver = Version(tolerant: tag_name) {
+            return ver
+        } else {
+            return Version(0, 0, 0)
+        }
+    }
+
     func viableAsset(forRepo repo: String) -> Asset? {
         return assets.first(where: { (asset) -> Bool in
             let prefix = "\(repo.lowercased())-\(tag_name)"
@@ -148,6 +156,8 @@ private struct Release: Decodable {
 
             switch (name, asset.content_type) {
             case ("\(prefix).tar", .tar):
+                return true
+            case ("\(prefix).zip", .zip):
                 return true
             case (prefix, _):
                 return true
@@ -188,7 +198,7 @@ private extension Array where Element == Release {
     func findViableUpdate(appVersion: Version, repo: String, prerelease: Bool) throws -> Release.Asset? {
         let suitableReleases = prerelease ? self : filter{ !$0.prerelease }
         guard let latestRelease = suitableReleases.sorted().last else { return nil }
-        guard appVersion < latestRelease.tag_name else { throw PMKError.cancelled }
+        guard appVersion < latestRelease.version else { throw PMKError.cancelled }
         return latestRelease.viableAsset(forRepo: repo)
     }
 }
