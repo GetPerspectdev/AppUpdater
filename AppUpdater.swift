@@ -52,7 +52,7 @@ public class AppUpdater {
         case invalidDownloadedBundle
     }
 
-    public func check() -> Promise<Void> {
+    public func check(beforeUpdate: (() -> Void)? = nil) -> Promise<Void> {
         guard active.isResolved else {
             return active
         }
@@ -124,7 +124,10 @@ public class AppUpdater {
         }.compactMap { releases in
             try releases.findViableUpdate(appVersion: currentVersion, repo: self.repo, prerelease: self.allowPrereleases)
         }.then { asset in
-            try update(with: asset)
+            if let beforeUpdate = beforeUpdate {
+                beforeUpdate()
+            }
+            return try update(with: asset)
         }
 
         return active
