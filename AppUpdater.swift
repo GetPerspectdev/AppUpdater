@@ -147,7 +147,7 @@ private struct Release: Decodable {
         if let ver = Version(tolerant: tag_name.replacingOccurrences(of: "v", with: "")) {
             return ver
         } else {
-            return Version(0, 0, 0)
+            return Version.null
         }
     }
 
@@ -214,7 +214,11 @@ private enum ContentType: Decodable {
 
 extension Release: Comparable {
     static func < (lhs: Release, rhs: Release) -> Bool {
-        return lhs.tag_name < rhs.tag_name
+        guard lhs.version.major == rhs.version.major else { return lhs.version.major < rhs.version.major }
+        guard lhs.version.minor == rhs.version.minor else { return lhs.version.minor < rhs.version.minor }
+        guard lhs.version.patch == rhs.version.patch else { return lhs.version.patch < rhs.version.patch }
+
+        return false
     }
 
     static func == (lhs: Release, rhs: Release) -> Bool {
