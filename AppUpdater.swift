@@ -203,6 +203,8 @@ private enum ContentType: Decodable {
             self = .tar
         case "application/zip":
             self = .zip
+        case "application/octet-stream":
+            self = .bin
         default:
             throw PMKError.badInput
         }
@@ -210,6 +212,7 @@ private enum ContentType: Decodable {
 
     case zip
     case tar
+    case bin
 }
 
 extension Release: Comparable {
