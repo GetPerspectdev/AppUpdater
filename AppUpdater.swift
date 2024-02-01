@@ -257,7 +257,7 @@ private func unzip(_ url: URL, contentType: ContentType) -> Promise<URL> {
         proc.launchPath = "/usr/bin/unzip"
         proc.arguments = [url.path]
     default:
-        throw PMKError.badInput
+        break
     }
 
     func findApp() throws -> URL? {
