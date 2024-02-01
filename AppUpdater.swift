@@ -187,6 +187,8 @@ private struct Release: Decodable {
                 return true
             case (prefix, _):
                 return true
+            case (prefix, .bin):
+                return false
             case (laxprefix, _):
                 return true
             default:
@@ -254,6 +256,8 @@ private func unzip(_ url: URL, contentType: ContentType) -> Promise<URL> {
     case .zip:
         proc.launchPath = "/usr/bin/unzip"
         proc.arguments = [url.path]
+    default:
+        throw PMKError.badInput
     }
 
     func findApp() throws -> URL? {
